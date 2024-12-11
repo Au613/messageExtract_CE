@@ -5,7 +5,7 @@
     <style>
       body {
         width: 200px;
-        height: 100px;
+        height: 150px;
         padding: 10px;
       }
       button {
@@ -19,10 +19,21 @@
       button:hover {
         background-color: #45a049;
       }
+      #message {
+        margin-top: 10px;
+        color: green;
+        font-weight: bold;
+      }
+      #status {
+        margin-top: 10px;
+        color: blue;
+      }
     </style>
   </head>
   <body>
     <button id="scrapeButton">Scrape Messages</button>
+    <p id="message"></p> <!-- The message will be displayed here -->
+    <p id="status"></p> <!-- Status updates will be displayed here -->
     <script src="popup.js"></script>
   </body>
 </html>

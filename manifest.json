@@ -1,10 +1,10 @@
 {
     "manifest_version": 3,
-    "name": "Message Scraper",
-    "description": "Scrape messages and timestamps on button click.",
+    "name": "Scrape Messages Extension",
     "version": "1.0",
     "permissions": [
-      "activeTab"
+      "activeTab",
+      "tabs"
     ],
     "background": {
       "service_worker": "background.js"
@@ -17,6 +17,13 @@
         "matches": ["<all_urls>"],
         "js": ["content.js"]
       }
-    ]
+    ],
+    "host_permissions": [
+      "http://*/*",
+      "https://*/*"
+    ],
+    "scripting": {
+      "all_frames": true
+    }
   }
   
