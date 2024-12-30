@@ -589,7 +589,6 @@ function Master() {
 				// Stop scrolling once we hit a message not from today
 				console.log("not scrolling")
 				const messages = scrapeMessages()
-
 				const today = new Date()
 				const todayStr = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`
 
