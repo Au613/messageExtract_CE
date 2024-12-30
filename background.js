@@ -549,19 +549,6 @@ function Master() {
 		return messages
 	}
 
-    function copyTodaysMessagesToClipboard(todaysMessages) {
-        navigator.clipboard.writeText(todaysMessages)
-            .then(() => {
-                console.log('Text successfully copied to clipboard!');
-            })
-            .catch((err) => {
-                console.error('Failed to copy text: ', err);
-            });
-    }
-    
-    
-    
-
 	//scrolls the chatbox to the top of the day
 	function scrollToDay() {
 		const chatBox = document.querySelector('[role="application"]') // get the chat box element
@@ -606,3 +593,22 @@ function Master() {
 	}
 	scrollAndFindMessages()
 }
+
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    if (message.action === 'beginningOfWeek') {
+      console.log('Button clicked: Beginning of the Week');
+      const weekStart = "Monday 12/30 - Sunday 01/06"; // Example date range
+      // Send a message to the popup to copy the text
+      chrome.runtime.sendMessage({ action: 'copyToClipboard', text: weekStart });
+      sendResponse({ success: true, copied: weekStart });
+    } else if (message.action === 'today') {
+        
+      console.log('Button clicked: Today');
+      const todayText = "Monday 12/30"; // Example today's date
+      // Send a message to the popup to copy the text
+      chrome.runtime.sendMessage({ action: 'copyToClipboard', text: todayText });
+      sendResponse({ success: true, copied: todayText });
+    }
+  });
+  
