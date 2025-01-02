@@ -34,27 +34,6 @@ const weekRange = `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`
 document.getElementById("todayDate").textContent = `(${todayFormatted})`
 document.getElementById("weekRange").textContent = `(${weekRange})`
 
-
-// Listen for messages from the background script
-chrome.runtime.onMessage.addListener(function (message) {
-	if (message.action === "copyToClipboard") {
-		const text = message.text
-		copyToClipboard(text)
-	}
-})
-
-// Function to copy text to clipboard
-function copyToClipboard(text) {
-	navigator.clipboard
-		.writeText(text)
-		.then(function () {
-			console.log("Text successfully copied to clipboard")
-		})
-		.catch(function (error) {
-			console.error("Error copying text: ", error)
-		})
-}
-
 document.getElementById("today").addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         // Dynamically inject content script
@@ -137,7 +116,7 @@ function displayLeaderboard(data) {
     sortedData.forEach(item => {
         const entry = document.createElement("div");
         entry.classList.add("leaderboard-entry");
-        entry.innerText = `${item.sender} ${item.count} ${item.phoneNumber}`;
+        entry.innerText = `${item.sender} ${item.count} ${item.date} ${item.time}`;
         
         // Optionally, you can add additional styles to the entry if needed
         entry.style.textAlign = 'left'; // Ensure each entry is also left-aligned
@@ -145,3 +124,28 @@ function displayLeaderboard(data) {
     });
 }
 
+// Add event listener to the "Copy" button
+document.getElementById("Copy").addEventListener("click", () => {
+    // Ensure the leaderboard is displayed before attempting to copy
+    const leaderboardContainer = document.getElementById("leaderboard");
+    if (leaderboardContainer && leaderboardContainer.innerText.trim() !== "") {
+        copyLeaderboardToClipboard();  // Call the copy function directly
+    } else {
+        console.log("Leaderboard content is empty or not loaded.");
+    }
+});
+
+// Function to copy the leaderboard content to the clipboard
+function copyLeaderboardToClipboard() {
+    const leaderboardContainer = document.getElementById("leaderboard");
+    const leaderboardText = leaderboardContainer.innerText;
+
+    navigator.clipboard
+        .writeText(leaderboardText)
+        .then(() => {
+            console.log("Leaderboard successfully copied to clipboard");
+        })
+        .catch((error) => {
+            console.error("Error copying text: ", error);
+        });
+}

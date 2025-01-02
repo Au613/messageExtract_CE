@@ -1,7 +1,6 @@
 function extractInfo(row) {
     // Retrieve sender name
-    const sender = row.querySelector('span[aria-label][dir="auto"]')?.innerText || "Unknown Sender"
-
+    const sender = (row.querySelector('span[dir="auto"]')?.innerText || row.querySelector('span[aria-label][dir="auto"]')?.innerText) || 'Unknown Sender'
     // Retrieve the message content
     const messageContent = row.querySelector('span[dir="ltr"]')?.innerText || "No Message Content"
 
@@ -37,12 +36,26 @@ function extractInfo(row) {
 
 //gets all of the message info from each message row
 function scrapeMessages() {
-    const messageRows = document.querySelectorAll('div[role="row"]')
+    const messageRows = document.querySelectorAll('div[role="row"]');
+    let previousSender = ''; // To keep track of the sender of the previous row
     const messages = Array.from(messageRows).map((row) => {
-        return extractInfo(row)
-    })
-    
-    return messages
+        let message = extractInfo(row); // Extract info from the current row
+        let sender = message.sender;
+
+        // Check if the sender contains a time format like "1:23 PM" or "1:23 AM"
+        if (sender.match(/\b\d{1,2}:\d{2}\s?[AP]M\b/)) {
+            sender = previousSender; // If time format is found, use the previous sender
+        } else {
+            previousSender = sender; // Update previousSender with the current row's sender
+        }
+
+        // Update the message object with the corrected sender
+        message.sender = sender;
+
+        return message;
+    });
+
+    return messages;
 }
 
 function scrollToDate(command) {
@@ -68,9 +81,8 @@ function scrollToDate(command) {
     let firstMessageDate = firstMessage.date;
     // Function to scroll and check the first message's date
     const scrollChat = () => {
-        if (firstMessageDate !== targetDate) {
+        if (firstMessageDate < targetDate || firstMessageDate === targetDate ) {
             // If the first message is not from the target date, keep scrolling
-            console.log(`Target date: ${targetDate}, Current message date: ${firstMessageDate}`);
             
             // Scroll to the chat box smoothly
             chatBox.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -79,21 +91,17 @@ function scrollToDate(command) {
             const updatedMessageRows = document.querySelectorAll('div[role="row"]');
             firstMessage = extractInfo(updatedMessageRows[0]);
             firstMessageDate = firstMessage.date;
-            console.log(`Still scrolling... Checking ${firstMessageDate}`);
     
             // Recursively call scrollChat every 2 seconds
             setTimeout(scrollChat, 2000);
         } else {
             // Once the first message's date matches the target date, stop scrolling and scrape the messages
-            console.log(`Reached target date: ${targetDate}, stopping scroll`);
     
             const messages = scrapeMessages();
-            const targetMessages = messages;
-    
+            const targetMessages = messages.filter(message => new Date(message.date) >= new Date(targetDate) );
             // Send the filtered messages to the background
             chrome.runtime.sendMessage({ type: 'EXTRACTED_JSON', data: targetMessages });
     
-            console.log(`${targetMessages.length} messages sent for target date: ${targetDate}`);
         }
     };
     
@@ -104,7 +112,6 @@ function scrollToDate(command) {
 
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log('Message received in content script:', message);
     if (message.type === 'scroll') {
         scrollToDate("today");
         sendResponse({ status: 'scroll started today' });
