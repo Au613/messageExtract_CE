@@ -58,6 +58,13 @@ function scrapeMessages() {
     return messages;
 }
 
+function getStartOfWeek(date) {
+	const day = date.getDay()
+	const diff = date.getDate() - day + (day === 0 ? -6 : 1) // Adjust if it's Sunday (0)
+	const startOfWeek = new Date(date.setDate(diff))
+	return startOfWeek
+}
+
 function scrollToDate(command) {
     const chatBox = document.querySelector('[role="application"]'); // Get the chat box element
     const messageRows = document.querySelectorAll('div[role="row"]'); // Get all message rows
@@ -69,8 +76,8 @@ function scrollToDate(command) {
         targetDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`; // Reversed: Month/Day/Year
     } else if (command === "week") {
         // Get the start of the week (Sunday, for example)
-        today.setDate(today.getDate() - today.getDay()); // Move back to Sunday
-        targetDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`; // Reversed: Month/Day/Year
+        const startOfWeek = getStartOfWeek(today);
+        targetDate = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()}/${startOfWeek.getFullYear()}`; // Reversed: Month/Day/Year
     } else {
         console.error("Invalid command, expected 'today' or 'week'.");
         return;
@@ -78,23 +85,30 @@ function scrollToDate(command) {
 
     // Check the first message's date
     let firstMessage = extractInfo(messageRows[0]);
-    let firstMessageDate = firstMessage.date;
     // Function to scroll and check the first message's date
+    
+    
+    
     const scrollChat = () => {
-        if (firstMessageDate < targetDate || firstMessageDate === targetDate ) {
+        const targetdateDateObj = new Date(targetDate)
+        let firstMessageDate = new Date(firstMessage.date);
+        
+        if (firstMessageDate > targetdateDateObj || firstMessageDate === targetdateDateObj ) {
+            console.log(firstMessageDate, targetdateDateObj, "11111")
             // If the first message is not from the target date, keep scrolling
             
             // Scroll to the chat box smoothly
             chatBox.scrollIntoView({ behavior: "smooth", block: "start" });
-    
+            
             // Update the message rows and check the first message's date again
             const updatedMessageRows = document.querySelectorAll('div[role="row"]');
             firstMessage = extractInfo(updatedMessageRows[0]);
             firstMessageDate = firstMessage.date;
-    
+            
             // Recursively call scrollChat every 2 seconds
             setTimeout(scrollChat, 2000);
         } else {
+            console.log(firstMessageDate, targetdateDateObj, "222222")
             // Once the first message's date matches the target date, stop scrolling and scrape the messages
     
             const messages = scrapeMessages();
