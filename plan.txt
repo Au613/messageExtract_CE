@@ -1,0 +1,9 @@
+plan
+
+1. popup | popup button click for today 
+1b. popup | send the date to content with action 'scroll'
+2. content | scroll to the date
+3. content | get all of the html and send to the background for info extraction
+4. background | get the messages from the html 
+5. background -> popup | send the json back 
+6. popup | show the leaderboard and make it copiable

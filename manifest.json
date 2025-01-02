@@ -21,6 +21,12 @@
 			"128": "images/icon-128.png"
 		}
 	},
+	"content_scripts": [
+		{
+			"matches": ["https://web.whatsapp.com/*"],
+			"js": ["content.js"]
+		}
+	],
 	"permissions": ["scripting", "activeTab", "alarms"],
 	"commands": {
 		"_execute_action": {
