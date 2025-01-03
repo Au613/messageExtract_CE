@@ -35,6 +35,8 @@ document.getElementById("todayDate").textContent = `(${todayFormatted})`
 document.getElementById("weekRange").textContent = `(${weekRange})`
 
 document.getElementById("today").addEventListener("click", () => {
+    const leaderboardContainer = document.getElementById("leaderboard");
+    leaderboardContainer.innerHTML = ''; // Clear any previous content
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         // Dynamically inject content script
         chrome.scripting.executeScript({
@@ -54,6 +56,8 @@ document.getElementById("today").addEventListener("click", () => {
 });
 
 document.getElementById("week").addEventListener("click", () => {
+    const leaderboardContainer = document.getElementById("leaderboard");
+    leaderboardContainer.innerHTML = ''; // Clear any previous content
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         // Dynamically inject content script
         chrome.scripting.executeScript({
@@ -103,6 +107,23 @@ function sortAndFilterLeaderboard(data) {
     return filteredData;
 }
 
+function countDate(data) {
+    // Object to track the highest count per sender
+    const senderMaxCount = {};
+
+    // Loop through the data to find the highest count for each sender
+    data.forEach(entry => {
+    const countValue = parseInt(entry.count.split('-')[0]);
+
+    if (!senderMaxCount[entry.sender] || countValue > senderMaxCount[entry.sender].countValue) {
+        senderMaxCount[entry.sender] = { countValue, phoneNumber: entry.phoneNumber };
+    }
+    });
+
+    return senderMaxCount
+
+}
+
 
 
 // Example function to display the leaderboard in the popup
@@ -113,10 +134,14 @@ function displayLeaderboard(data) {
     // Set the container to left-align
     leaderboardContainer.style.textAlign = 'left';
     const sortedData = sortAndFilterLeaderboard(data)
-    sortedData.forEach(item => {
+    // const highestDate = countDate(sortedData)
+
+
+    sortedData?.forEach(item => {
         const entry = document.createElement("div");
         entry.classList.add("leaderboard-entry");
-        entry.innerText = `${item.sender} ${item.count} ${item.date} ${item.time}`;
+        // entry.innerText = `${item.sender} ${item.count} ${item.phoneNumber}`;
+        entry.innerText = `${item.sender} ${item.count} ${item.date}`;
         
         // Optionally, you can add additional styles to the entry if needed
         entry.style.textAlign = 'left'; // Ensure each entry is also left-aligned
