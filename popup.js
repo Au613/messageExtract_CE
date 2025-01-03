@@ -89,7 +89,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 function sortAndFilterLeaderboard(data) {
     // Filter out items where the 'count' property is falsy
-    const filteredData = data.filter(item => item.count);
+    const filteredData = data.filter(item => item.count && item.count !== '');
 
     // Sort the filtered data by the 'sender' property
     filteredData.sort((a, b) => {
@@ -107,20 +107,34 @@ function sortAndFilterLeaderboard(data) {
     return filteredData;
 }
 
+function sumCount(count) {
+    let summ = 0;
+    let error = false
+    try {
+        summ = count.split('-').reduce((accumulator, currentValue) => accumulator + parseFloat(currentValue), 0);
+
+    }
+    catch (e){
+        error = true
+    }
+    if (error) console.log(count, "AUSTIN AUSTIN AUSTIN")
+    return summ
+}
+
 function countDate(data) {
     // Object to track the highest count per sender
     const senderMaxCount = {};
 
     // Loop through the data to find the highest count for each sender
     data.forEach(entry => {
-    const countValue = parseInt(entry.count.split('-')[0]);
+    const countValue = sumCount(entry.count);
 
-    if (!senderMaxCount[entry.sender] || countValue > senderMaxCount[entry.sender].countValue) {
-        senderMaxCount[entry.sender] = { countValue, phoneNumber: entry.phoneNumber };
+    if (!senderMaxCount[entry.sender] || countValue > sumCount(senderMaxCount[entry.sender].count)) {
+        senderMaxCount[entry.sender] = entry;
     }
     });
 
-    return senderMaxCount
+    return Object.values(senderMaxCount)
 
 }
 
@@ -134,10 +148,9 @@ function displayLeaderboard(data) {
     // Set the container to left-align
     leaderboardContainer.style.textAlign = 'left';
     const sortedData = sortAndFilterLeaderboard(data)
-    // const highestDate = countDate(sortedData)
-
-
-    sortedData?.forEach(item => {
+    const highestCountData = countDate(sortedData)
+    
+    highestCountData?.forEach(item => {
         const entry = document.createElement("div");
         entry.classList.add("leaderboard-entry");
         // entry.innerText = `${item.sender} ${item.count} ${item.phoneNumber}`;

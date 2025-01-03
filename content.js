@@ -4,9 +4,9 @@ function extractInfo(row) {
     // Retrieve the message content
     const messageContent = row.querySelector('span[dir="ltr"]')?.innerText || "No Message Content"
 
-    const countRegex = /\b(?:learn|lift)\b.*?(\d+-\d+)\b|\b(\d+-\d+)\b.*?\b(?:learn|lift)\b/i
-    const match = messageContent.match(countRegex)
-    const count = match ? match[1] || match[2] : ""
+    const countRegex = /\b(?:learn|lift)\b.*?(\d+(?:\.\d+)?\s*-?\s*\d*(?:\.\d+)?|\d*\s*\.\d+)\b|\b(\d+(?:\.\d+)?\s*-?\s*\d*(?:\.\d+)?|\d*\s*\.\d+)\b.*?\b(?:learn|lift)\b/i;
+    const match = messageContent.match(countRegex);
+    const count = match ? match[1] || match[2] : "";
 
     // Retrieve the timestamp from the 'data-pre-plain-text' attribute
     const timestampElement = row.querySelector("[data-pre-plain-text]")
