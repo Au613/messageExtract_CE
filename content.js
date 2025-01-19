@@ -66,10 +66,14 @@ function getStartOfWeek(date) {
 }
 
 function beforeDate(date1, date2) {
+    const conditionYear = date1.getYear() < date2.getYear() 
+    const conditionMonth = date1.getMonth() < date2.getMonth() 
+    const conditionDay = date1.getDate() < date2.getDate() 
+
     if (date1.getYear() === date2.getYear()) {
         if (date1.getMonth() === date2.getMonth()) {
-            if (date1.getDay() === date2.getDay()) return true
-            else return date1.getDay() < date2.getDay()
+            if (date1.getDate() === date2.getDate()) return true
+            else return date1.getDate() < date2.getDate()
         }
         else {
             date1.getMonth() < date2.getMonth() 
@@ -115,7 +119,8 @@ function scrollToDate(command) {
     
     const scrollChat = () => {
         const targetdateDateObj = new Date(targetDate)
-        if (beforeDate(targetdateDateObj, firstMessageDateObj)) {
+        const beforeDayCondition = beforeDate(targetdateDateObj, firstMessageDateObj)
+        if (beforeDayCondition) {
             // If the first message is not from the target date, keep scrolling
             
             // Scroll to the chat box smoothly

@@ -150,7 +150,7 @@ function displayLeaderboard(data) {
 	const sortedData = sortAndFilterLeaderboard(data)
 	const highestCountData = countDate(sortedData)
 
-	if (highestCountData && highestCountData.length > 0) {
+	if (sortedData && sortedData.length > 0) {
 		// Create the table and the header
 		const table = document.createElement("table")
 		table.classList.add("leaderboard-table")
