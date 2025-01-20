@@ -147,10 +147,11 @@ function displayLeaderboard(data) {
 
 	// Set the container to left-align
 	leaderboardContainer.style.textAlign = "left"
+	console.log(data, "DATA DATA DATA")
 	const sortedData = sortAndFilterLeaderboard(data)
 	const highestCountData = countDate(sortedData)
 
-	if (sortedData && sortedData.length > 0) {
+	if (highestCountData && highestCountData.length > 0) {
 		// Create the table and the header
 		const table = document.createElement("table")
 		table.classList.add("leaderboard-table")
@@ -168,7 +169,6 @@ function displayLeaderboard(data) {
 		headerRow.appendChild(countHeader)
 		headerRow.appendChild(dateHeader)
 		table.appendChild(headerRow)
-
 		// Create a row for each item in the highestCountData
 		highestCountData.forEach((item) => {
 			const row = document.createElement("tr")
