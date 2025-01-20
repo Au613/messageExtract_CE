@@ -74,7 +74,7 @@ function beforeDate(date1, date2) {
     if (date1.getYear() === date2.getYear()) {
         if (date1.getMonth() === date2.getMonth()) {
             if (date1.getDate() === date2.getDate()) return true
-            else return date1.getDate() < date2.getDate()
+            else return date1.getDate() < date2.getDate() - 1
         }
         else {
             date1.getMonth() < date2.getMonth() 
@@ -139,6 +139,7 @@ function scrollToDate(command) {
             console.log(4)
             
             // Recursively call scrollChat every 2 seconds
+            console.log(firstMessageDateObj, "ELON")
             setTimeout(scrollChat, 2000);
         } else {
             // Once the first message's date matches the target date, stop scrolling and scrape the messages
