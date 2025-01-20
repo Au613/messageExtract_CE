@@ -107,6 +107,7 @@ function scrollToDate(command) {
     if (command === "today") {
         targetDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`; // Reversed: Month/Day/Year
     } else if (command === "week") {
+        console.log("receiving the message")
         // Get the start of the week (Sunday, for example)
         const startOfWeek = getStartOfWeek(today);
         targetDate = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()}/${startOfWeek.getFullYear()}`; // Reversed: Month/Day/Year
