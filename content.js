@@ -140,6 +140,7 @@ function scrollToDate(command) {
             // Once the first message's date matches the target date, stop scrolling and scrape the messages
     
             const messages = scrapeMessages();
+            console.log(messages, "NEW NEW NEW")
             const targetMessages = messages.filter(message => new Date(message.date) >= new Date(targetDate) );
             // Send the filtered messages to the background
             chrome.runtime.sendMessage({ type: 'EXTRACTED_JSON', data: targetMessages });
