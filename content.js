@@ -111,6 +111,7 @@ function scrollToDate(command) {
         // Get the start of the week (Sunday, for example)
         const startOfWeek = getStartOfWeek(today);
         targetDate = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()}/${startOfWeek.getFullYear()}`; // Reversed: Month/Day/Year
+        console.log(targetDate, "target date", "start", startOfWeek)
     } else {
         console.error("Invalid command, expected 'today' or 'week'.");
         return;
@@ -121,6 +122,7 @@ function scrollToDate(command) {
     
     const scrollChat = () => {
         const targetdateDateObj = new Date(targetDate)
+        console.log(targetdateDateObj, "yo yo yo")
         const beforeDayCondition = beforeDate(targetdateDateObj, firstMessageDateObj)
         if (beforeDayCondition) {
             // If the first message is not from the target date, keep scrolling
