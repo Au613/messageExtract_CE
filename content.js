@@ -122,17 +122,21 @@ function scrollToDate(command) {
     
     const scrollChat = () => {
         const targetdateDateObj = new Date(targetDate)
-        console.log(targetdateDateObj, "yo yo yo")
+        console.log(0)
         const beforeDayCondition = beforeDate(targetdateDateObj, firstMessageDateObj)
         if (beforeDayCondition) {
+            console.log(1)
             // If the first message is not from the target date, keep scrolling
             
             // Scroll to the chat box smoothly
             chatBox.scrollIntoView({ behavior: "smooth", block: "start" });
+            console.log(2)
             
             // Update the message rows and check the first message's date again
             const updatedMessageRows = document.querySelectorAll('div[role="row"]');
+            console.log(3)
             firstMessageDateObj = getFirstMessageDate(updatedMessageRows)
+            console.log(4)
             
             // Recursively call scrollChat every 2 seconds
             setTimeout(scrollChat, 2000);
