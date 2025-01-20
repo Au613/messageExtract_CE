@@ -41,6 +41,7 @@ function scrapeMessages() {
     const messages = Array.from(messageRows).map((row) => {
         let message = extractInfo(row); // Extract info from the current row
         let sender = message.sender;
+        console.log(message, "MESSAGE")
 
         // Check if the sender contains a time format like "1:23 PM" or "1:23 AM"
         if (sender.match(/\b\d{1,2}:\d{2}\s?[AP]M\b/)) {
