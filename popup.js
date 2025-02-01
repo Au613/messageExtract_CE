@@ -151,12 +151,27 @@ function maxFromData(data) {
 }
 
 function countData(data) {
+
+	const sortedData = data.sort((a, b) => {
+		const senderA = a.sender.toLowerCase() // Case insensitive sorting
+		const senderB = b.sender.toLowerCase()
+		if (senderA < senderB) {
+			return -1 // a comes before b
+		}
+		if (senderA > senderB) {
+			return 1 // b comes before a
+		}
+		return 0 // equal
+	})
 	const senderMaxCount = {}
 
+	console.log("sorted: ", sortedData)
+
 	// Loop through the data to find the highest count for each sender
-	data.forEach((entry) => {
-		const sender=entry.sender
+	sortedData.forEach((entry) => {
+		const sender= entry.sender
 		const type  = entry.messageType
+
 
 		if (!senderMaxCount[sender]) {
 			senderMaxCount[sender] = {lift: 0, learn:0}
@@ -175,7 +190,18 @@ function displayLeaderboard(data) {
 
 	// Set the container to left-align
 	leaderboardContainer.style.textAlign = "left"
-	console.log(data, "DATA DATA DATA")
+	const sortedDataForPrint = data.sort((a, b) => {
+		const senderA = a.sender.toLowerCase() // Case insensitive sorting
+		const senderB = b.sender.toLowerCase()
+		if (senderA < senderB) {
+			return -1 // a comes before b
+		}
+		if (senderA > senderB) {
+			return 1 // b comes before a
+		}
+		return 0 // equal
+	})
+	console.log(sortedDataForPrint, "DATA DATA DATA")
 
 	const sortedData = sortAndFilterLeaderboard(data)
 	const highestCountData = maxFromData(sortedData) //list
@@ -192,7 +218,8 @@ function displayLeaderboard(data) {
 	Object.keys(transformed).forEach(person => 
 		newObject[person] = {
 			claimed:formatCount(transformed[person].count),
-			counted:formattedCountedData[person]
+			counted:formattedCountedData[person],
+			compare: compareCounts(formatCount(transformed[person].count), formattedCountedData[person] )
 		}
 	)
 	console.log(newObject)
@@ -225,6 +252,7 @@ function displayLeaderboard(data) {
 
 			const countCell = document.createElement("td")
 			countCell.innerText = formatCount(item.count)
+			row.style.color = newObject[item.sender].compare
 
 			const dateCell = document.createElement("td")
 			dateCell.innerText = item.date
@@ -294,3 +322,12 @@ function formatCountedData(countedDataObject) {
     return newObject;
 }
 
+function compareCounts(claimed,counted) {
+	const claimedInt = sumCount(claimed)
+	const countedInt = sumCount(counted)
+
+	if (claimed > counted) return 'red'
+	if (claimed === counted) return 'green'
+	if (claimed < counted) return 'blue'
+
+}
