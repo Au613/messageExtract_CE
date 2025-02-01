@@ -176,13 +176,27 @@ function displayLeaderboard(data) {
 	// Set the container to left-align
 	leaderboardContainer.style.textAlign = "left"
 	console.log(data, "DATA DATA DATA")
+
 	const sortedData = sortAndFilterLeaderboard(data)
-	const highestCountData = maxFromData(sortedData)
+	const highestCountData = maxFromData(sortedData) //list
 
 	const countedData = countData(sortedData)
 	const formattedCountedData = formatCountedData(countedData)
 
-	console.log("HIGHEST",highestCountData,"COUNTED", countedData, "FORMATTED" , formattedCountedData)
+	// console.log("HIGHEST",highestCountData,"FORMATTED" , formattedCountedData)
+	
+	const transformed = highestCountData.reduce((acc, { sender, count }) => {
+		acc[sender] = { count };
+		return acc;
+	  }, {});	let newObject = {}
+	Object.keys(transformed).forEach(person => 
+		newObject[person] = {
+			claimed:formatCount(transformed[person].count),
+			counted:formattedCountedData[person]
+		}
+	)
+	console.log(newObject)
+	
 
 	if (highestCountData && highestCountData.length > 0) {
 		// Create the table and the header
