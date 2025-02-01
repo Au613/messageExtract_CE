@@ -3,7 +3,7 @@ function extractInfo(row) {
     const sender = (row.querySelector('span[dir="auto"]')?.innerText || row.querySelector('span[aria-label][dir="auto"]')?.innerText) || 'Unknown Sender'
     // Retrieve the message content
     const messageContent = row.querySelector('span[dir="ltr"]')?.innerText || "No Message Content"
-
+    // console.log(messageContent, "MESSAGE")
     const countRegex = /\b(?:learn|lift)\b.*?(\d+(?:\.\d+)?\s*-?\s*\d*(?:\.\d+)?|\d*\s*\.\d+)\b|\b(\d+(?:\.\d+)?\s*-?\s*\d*(?:\.\d+)?|\d*\s*\.\d+)\b.*?\b(?:learn|lift)\b/i;
     const match = messageContent.match(countRegex);
     const count = match ? match[1] || match[2] : "";
@@ -25,12 +25,17 @@ function extractInfo(row) {
     const phoneNumber = phoneMatch ? phoneMatch[0] : null // Determine the message type based on content
 
     let messageType = "Unknown"
-    if (messageContent.toUpperCase().includes("LEARN")) {
+    const includeLearn = messageContent.toUpperCase().includes("LEARN")
+    const includesLift = messageContent.toUpperCase().includes("LIFT")
+    if ( includeLearn && includesLift ) {
+        messageType = "lift and learn"
+    }
+    else if (includeLearn) {
         messageType = "learn"
-    } else if (messageContent.toUpperCase().includes("LIFT")) {
+    } else if (includesLift) {
         messageType = "lift"
     }
-    return {sender, count, messageContent, date, time, phoneNumber}
+    return {sender, count, messageType, messageContent, date, time, phoneNumber}
     // return {sender, messageContent, date, time, phoneNumber, messageType, count}
 }
 
@@ -40,8 +45,8 @@ function scrapeMessages() {
     let previousSender = ''; // To keep track of the sender of the previous row
     const messages = Array.from(messageRows).map((row) => {
         let message = extractInfo(row); // Extract info from the current row
+        // console.log(message, "INFO")
         let sender = message.sender;
-        console.log(message, "MESSAGE")
 
         // Check if the sender contains a time format like "1:23 PM" or "1:23 AM"
         if (sender.match(/\b\d{1,2}:\d{2}\s?[AP]M\b/)) {
@@ -64,6 +69,17 @@ function getStartOfWeek(date) {
 	const diff = date.getDate() - day + (day === 0 ? -6 : 1) // Adjust if it's Sunday (0)
 	const startOfWeek = new Date(date.setDate(diff))
 	return startOfWeek
+}
+
+function getPreviousDay(date) {
+    const previousDate = new Date(date);
+    previousDate.setDate(date.getDate() - 1);
+    return previousDate;
+}
+
+function getDayBeforeStartOfWeek(date) {
+    const startOfWeek = getStartOfWeek(date);
+    return getPreviousDay(startOfWeek);
 }
 
 function beforeDate(date1, date2) {
@@ -107,11 +123,11 @@ function scrollToDate(command) {
     if (command === "today") {
         targetDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`; // Reversed: Month/Day/Year
     } else if (command === "week") {
-        console.log("receiving the message")
         // Get the start of the week (Sunday, for example)
         const startOfWeek = getStartOfWeek(today);
-        targetDate = `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()}/${startOfWeek.getFullYear()}`; // Reversed: Month/Day/Year
-        console.log(targetDate, "target date", "start", startOfWeek)
+        const dayBeforeStartOfWeek = getDayBeforeStartOfWeek(startOfWeek)
+        targetDate = `${dayBeforeStartOfWeek.getMonth()+1}/${dayBeforeStartOfWeek.getDate()}/${dayBeforeStartOfWeek.getFullYear()}`; // Reversed: Month/Day/Year
+        console.log("target data: ", targetDate)
     } else {
         console.error("Invalid command, expected 'today' or 'week'.");
         return;
@@ -122,31 +138,26 @@ function scrollToDate(command) {
     
     const scrollChat = () => {
         const targetdateDateObj = new Date(targetDate)
-        console.log(0)
         const beforeDayCondition = beforeDate(targetdateDateObj, firstMessageDateObj)
+        console.log(targetdateDateObj,targetDate, firstMessageDateObj, "1234")
+        console.log(beforeDayCondition, "right here here here")
         if (beforeDayCondition) {
-            console.log(1)
             // If the first message is not from the target date, keep scrolling
             
             // Scroll to the chat box smoothly
             chatBox.scrollIntoView({ behavior: "smooth", block: "start" });
-            console.log(2)
             
             // Update the message rows and check the first message's date again
             const updatedMessageRows = document.querySelectorAll('div[role="row"]');
-            console.log(3)
             firstMessageDateObj = getFirstMessageDate(updatedMessageRows)
-            console.log(4)
             
             // Recursively call scrollChat every 2 seconds
-            console.log(firstMessageDateObj, "ELON")
             setTimeout(scrollChat, 2000);
         } else {
             // Once the first message's date matches the target date, stop scrolling and scrape the messages
     
             const messages = scrapeMessages();
-            console.log(messages, "NEW NEW NEW")
-            const targetMessages = messages.filter(message => new Date(message.date) >= new Date(targetDate) );
+            const targetMessages = messages.filter(message => new Date(message.date) > new Date(targetDate) );
             // Send the filtered messages to the background
             chrome.runtime.sendMessage({ type: 'EXTRACTED_JSON', data: targetMessages });
     

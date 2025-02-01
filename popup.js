@@ -113,18 +113,28 @@ function sortAndFilterLeaderboard(data) {
 }
 
 function sumCount(count) {
-	let summ = 0
-	let error = false
-	try {
-		summ = count.split("-").reduce((accumulator, currentValue) => accumulator + parseFloat(currentValue), 0)
-	} catch (e) {
-		error = true
-	}
-	if (error) console.log(count, "AUSTIN AUSTIN AUSTIN")
-	return summ
+    let summ = 0;
+    let error = false;
+    
+    try {
+        // Normalize the input by adding missing values if necessary
+        const normalizedCount = count
+            .split("-")
+            .map(value => value.trim() === "" ? "0" : value);
+
+        summ = normalizedCount.reduce((accumulator, currentValue) => 
+            accumulator + parseFloat(currentValue), 0
+        );
+
+    } catch (e) {
+        error = true;
+    }
+
+    if (error) console.log(count, "AUSTIN AUSTIN AUSTIN");
+    return summ;
 }
 
-function countDate(data) {
+function maxFromData(data) {
 	// Object to track the highest count per sender
 	const senderMaxCount = {}
 
@@ -140,6 +150,24 @@ function countDate(data) {
 	return Object.values(senderMaxCount)
 }
 
+function countData(data) {
+	const senderMaxCount = {}
+
+	// Loop through the data to find the highest count for each sender
+	data.forEach((entry) => {
+		const sender=entry.sender
+		const type  = entry.messageType
+
+		if (!senderMaxCount[sender]) {
+			senderMaxCount[sender] = {lift: 0, learn:0}
+		}
+		if (type.toUpperCase().includes('LEARN')) senderMaxCount[sender]["learn"] += 1
+		if (type.toUpperCase().includes('LIFT'))  senderMaxCount[sender]["lift"] += 1
+
+	})
+	return senderMaxCount
+}
+
 // Example function to display the leaderboard in the popup
 function displayLeaderboard(data) {
 	const leaderboardContainer = document.getElementById("leaderboard")
@@ -149,7 +177,12 @@ function displayLeaderboard(data) {
 	leaderboardContainer.style.textAlign = "left"
 	console.log(data, "DATA DATA DATA")
 	const sortedData = sortAndFilterLeaderboard(data)
-	const highestCountData = countDate(sortedData)
+	const highestCountData = maxFromData(sortedData)
+
+	const countedData = countData(sortedData)
+	const formattedCountedData = formatCountedData(countedData)
+
+	console.log("HIGHEST",highestCountData,"COUNTED", countedData, "FORMATTED" , formattedCountedData)
 
 	if (highestCountData && highestCountData.length > 0) {
 		// Create the table and the header
@@ -177,7 +210,7 @@ function displayLeaderboard(data) {
 			senderCell.innerText = item.sender
 
 			const countCell = document.createElement("td")
-			countCell.innerText = item.count
+			countCell.innerText = formatCount(item.count)
 
 			const dateCell = document.createElement("td")
 			dateCell.innerText = item.date
@@ -223,3 +256,27 @@ function copyLeaderboardToClipboard() {
 			console.error("Error copying text: ", error)
 		})
 }
+
+function formatCount(input) {
+    let parts = input.split("-").map(part => part.trim());
+
+    // Ensure both parts exist, default to "0" if undefined or empty
+    const left = parts[0] || "0";
+    const right = parts[1] || "0";
+
+    return `${left} - ${right}`;
+}
+
+function formatCountedData(countedDataObject) {
+    let newObject = {};
+
+    for (const key in countedDataObject) {
+        const entry = countedDataObject[key];
+        if (entry && typeof entry === "object") {
+            newObject[key] = `${entry.lift} - ${entry.learn}`;
+        }
+    }
+
+    return newObject;
+}
+
