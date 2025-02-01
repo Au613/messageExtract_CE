@@ -3,7 +3,6 @@ function extractInfo(row) {
 	// console.log(row, "ROW ROW ROW")
 	const firstMessageFromSender = !!row.querySelector('[tabindex="0"]:is([aria-label*="chat details"])')
 
-    console.log(firstMessageFromSender, "first first first")
 	// Retrieve sender name
 	let sender = row.querySelector('span[dir="auto"]')?.innerText || row.querySelector('span[aria-label][dir="auto"]')?.innerText || "Unknown Sender"
 	sender = firstMessageFromSender ? sender : "previous sender"
@@ -11,9 +10,9 @@ function extractInfo(row) {
 	// Retrieve the message content
 	const messageContent = row.querySelector('span[dir="ltr"]')?.innerText || "No Message Content"
 	
-	const countRegex = /(?:lift|learn)\s*(\d+)\s*[-]?\s*(\d+)/i
+	const countRegex = /(?:lift|learn)\s*(\d+)\s*[-]?\s*(\d+)|(?:learn|lift)\s*(\d+)\s*[-]?\s*(\d+)/i;
 	const match = messageContent.match(countRegex)
-	const count = match ? match[1] || match[2] : ""
+	const count = match ? `${match[1]} - ${match[2]}` : ""
 
 	// Retrieve the timestamp from the 'data-pre-plain-text' attribute
 	const timestampElement = row.querySelector("[data-pre-plain-text]")
@@ -53,7 +52,6 @@ function scrapeMessages() {
 	const messages = Array.from(messageRows).map((row) => {
 		let message = extractInfo(row) // Extract info from the current row
 		let sender = message.sender
-        console.log(message, "hey hey hey")
 		// Check if the sender contains a time format like "1:23 PM" or "1:23 AM"
 		if (sender.match(/\b\d{1,2}:\d{2}\s?[AP]M\b/) || sender === "previous sender") {
 			sender = previousSender // If time format is found, use the previous sender
